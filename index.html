@@ -4,254 +4,592 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>THE 2025 MENDOZA STAKES</title>
+    <meta name="description" content="The 2nd Annual Running of the Bob Uecker Memorial Race to .200 - Live MLB batting average tracking">
+    <meta name="author" content="Dud Lawson">
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        /* Reset and Base Styles */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             background: white;
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
             color: #2c2c2c;
         }
         
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
+        .container { max-width: 100%; margin: 0 auto; }
         
+        /* Header */
         .header {
             text-align: center;
-            margin-bottom: 30px;
-            padding: 20px;
+            margin-bottom: 20px;
+            padding: 15px;
             background: #feed85;
-            border-radius: 15px;
             border: 2px solid #feed85;
         }
         
         .header h1 {
-            font-size: 2.5rem;
-            margin-bottom: 10px;
-            text-shadow: none;
+            font-size: 2rem;
+            margin-bottom: 8px;
             color: black;
+            line-height: 1.2;
         }
         
-        .header p {
-            font-size: 1.1rem;
-            opacity: 1;
+        .header .race-title {
+            font-size: 1rem;
             color: black;
+            font-style: italic;
         }
         
-        .last-updated {
+        /* Info Sections */
+        .info-box, .live-standings {
             text-align: center;
             margin-bottom: 20px;
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        
-        .loading {
-            text-align: center;
-            font-size: 1.2rem;
-            margin: 50px 0;
-        }
-        
-        .leaderboard {
+            padding: 15px;
             background: white;
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            border: 1px solid #ddd;
+            font-size: 0.9rem;
+            line-height: 1.4;
         }
         
+        .info-box a, .live-standings a {
+            color: #2c2c2c;
+            text-decoration: underline;
+        }
+        
+        /* Mendoza Line Divider */
+        .mendoza-line-divider {
+            text-align: center;
+            margin: 20px 0;
+            position: relative;
+            color: #2c2c2c;
+            font-weight: bold;
+            font-size: 1.4rem;
+        }
+        
+        .mendoza-line-divider::before,
+        .mendoza-line-divider::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            width: calc(50% - 130px);
+            height: 2px;
+            background-color: #2c2c2c;
+        }
+        
+        .mendoza-line-divider::before { left: 0; }
+        .mendoza-line-divider::after { right: 0; }
+        
+        /* Phrase Text */
+        .hits-squares-text {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 2rem;
+            font-weight: bold;
+            font-style: italic;
+            font-family: 'Brush Script MT', cursive, Arial, sans-serif;
+            color: #2c2c2c;
+            min-height: 2.6rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        /* Player Rows */
         .player-row {
             display: flex;
             align-items: center;
-            padding: 20px;
+            padding: 15px 12px;
             border-bottom: 1px solid #ddd;
-            transition: all 0.3s ease;
-            position: relative;
         }
         
-        .player-row.first-place {
-            background: black;
-            color: #feed89;
-        }
+        .player-row:last-child { border-bottom: none; }
         
-        .player-row.second-place {
-            background: #feed89;
-            color: black;
-        }
-        
-        .player-row.odd-place {
-            background: black;
-            color: #feed89;
-        }
-        
-        .player-row.even-place {
-            background: #feed89;
-            color: black;
-        }
-        
-        .player-row:hover {
-            transform: translateX(5px);
-        }
-        
-        .player-row:last-child {
-            border-bottom: none;
-        }
-        
-        .rank {
-            font-size: 2rem;
-            font-weight: bold;
-            width: 60px;
-            text-align: center;
-            margin-right: 20px;
-        }
-        
-        .rank.closest {
-            color: inherit;
-            text-shadow: none;
-        }
+        /* Row Colors */
+        .player-row.first-place { background: black; color: #feed89; }
+        .player-row.second-place { background: #feed89; color: black; }
+        .player-row.odd-place { background: black; color: #feed89; }
+        .player-row.even-place { background: #feed89; color: black; }
         
         .player-info {
             flex: 1;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            width: 100%;
         }
         
         .player-name {
-            font-size: 1.6rem;
+            font-size: 1.5rem;
             font-weight: bold;
-            margin-bottom: 5px;
+            line-height: 1.2;
         }
         
-        .player-team {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        
+        /* Batting Display */
         .batting-stats {
             text-align: right;
+            flex-shrink: 0;
+            position: relative;
         }
         
-        .batting-avg {
-            font-size: 2rem;
+        .batting-display {
+            font-size: 1.5rem;
             font-weight: bold;
-            margin-bottom: 5px;
+            cursor: pointer;
+            user-select: none;
+            text-align: right;
+            position: relative;
         }
         
-        .distance-to-200 {
-            font-size: 0.9rem;
-            opacity: 0.8;
-        }
-        
-        .distance-bar {
-            width: 100px;
-            height: 6px;
-            background: rgba(0, 0, 0, 0.2);
-            border-radius: 3px;
-            margin-top: 5px;
-            overflow: hidden;
-        }
-        
-        .distance-fill {
+        .tap-tooltip {
+            position: absolute;
+            top: 0;
+            right: 0;
+            font-size: 1.5rem;
+            font-weight: bold;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+            pointer-events: none;
+            text-align: right;
+            white-space: nowrap;
             height: 100%;
-            background: linear-gradient(90deg, #feed85, #feed89);
-            border-radius: 3px;
-            transition: width 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            width: 100%;
+        }
+        
+        .player-row.first-place .tap-tooltip,
+        .player-row.odd-place .tap-tooltip {
+            color: #feed85;
+            background-color: black;
+        }
+        
+        .player-row.second-place .tap-tooltip,
+        .player-row.even-place .tap-tooltip {
+            color: black;
+            background-color: #feed85;
+        }
+        
+        .batting-display:hover .tap-tooltip,
+        .batting-display.active .tap-tooltip {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        /* Game Status Indicators */
+        .game-status-dot {
+            font-size: 1.5rem;
+            margin-left: 4px;
+        }
+        
+        .player-row.first-place .game-status-dot,
+        .player-row.odd-place .game-status-dot {
+            color: #feed85;
+        }
+        
+        .player-row.second-place .game-status-dot,
+        .player-row.even-place .game-status-dot {
+            color: black;
+        }
+        
+        .active-player-dot { color: #ffff00 !important; }
+        
+        /* New dot state colors */
+        .bunt-sac-dot { color: #ff69b4 !important; } /* Pink */
+        .walk-dot { color: #ffffff !important; } /* White */
+        .hbp-dot { color: #ffa500 !important; } /* Orange */
+        
+        /* Animations */
+        .live-blink { animation: liveBlink 2s ease-in-out infinite; }
+        
+        @keyframes liveBlink {
+            0%, 50% { opacity: 1; }
+            75% { opacity: 0.3; }
+            100% { opacity: 1; }
+        }
+        
+        .flash-dot-red { animation: flashDotRed 2s ease-out; }
+        .flash-dot-green { animation: flashDotGreen 2s ease-out; }
+        .flash-dot-pink { animation: flashDotPink 2s ease-out; }
+        .flash-dot-white { animation: flashDotWhite 2s ease-out; }
+        .flash-dot-orange { animation: flashDotOrange 2s ease-out; }
+        
+        @keyframes flashDotRed {
+            0% { color: inherit; }
+            20% { color: #ff4444; }
+            100% { color: inherit; }
+        }
+        
+        @keyframes flashDotGreen {
+            0% { color: inherit; }
+            20% { color: #44ff44; }
+            100% { color: inherit; }
+        }
+        
+        @keyframes flashDotPink {
+            0% { color: inherit; }
+            20% { color: #ff69b4; }
+            100% { color: inherit; }
+        }
+        
+        @keyframes flashDotWhite {
+            0% { color: inherit; }
+            20% { color: #ffffff; }
+            100% { color: inherit; }
+        }
+        
+        @keyframes flashDotOrange {
+            0% { color: inherit; }
+            20% { color: #ffa500; }
+            100% { color: inherit; }
+        }
+        
+        /* Utility Classes */
+        .loading {
+            text-align: center;
+            font-size: 1.1rem;
+            margin: 30px 0;
         }
         
         .error {
             text-align: center;
             color: black;
-            font-size: 1.1rem;
-            margin: 50px 0;
-            padding: 20px;
+            font-size: 1rem;
+            margin: 30px 0;
+            padding: 15px;
             background: #feed85;
-            border-radius: 10px;
             border: 1px solid #feed89;
         }
         
-        @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+        .game-key {
+            text-align: right;
+            margin: 15px 0;
+            font-size: 0.7rem;
+            color: black;
         }
         
-        .loading {
-            animation: pulse 2s infinite;
+        .copyright {
+            text-align: center;
+            margin-top: 15px;
+            font-size: 0.8rem;
+            opacity: 0.8;
+            color: #cc99cc;
         }
         
+        .copyright a {
+            color: #cc99cc;
+            text-decoration: underline;
+        }
+        
+        /* Mobile Styles */
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 2rem;
-            }
-            
-            .player-row {
-                flex-direction: column;
-                text-align: center;
-                padding: 15px;
-            }
-            
-            .rank {
-                margin-bottom: 10px;
-            }
-            
-            .player-info {
-                flex-direction: column;
-                width: 100%;
-            }
-            
-            .batting-stats {
-                margin-top: 15px;
-                text-align: center;
-            }
+            body { padding: 8px; }
+            .header h1 { font-size: 1.75rem; }
+            .mendoza-line-divider { font-size: 1.2rem; }
+            .hits-squares-text { font-size: 1.8rem; }
+            .player-row { padding: 12px 10px; }
+            .player-name { font-size: 1.25rem; }
+            .batting-display, .tap-tooltip { font-size: 1.25rem; }
+            .game-status-dot { font-size: 1.25rem; }
+            .game-key { font-size: 0.65rem; }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏇⚾💸 THE 2025 MENDOZA STAKES 🏇⚾💸</h1>
-            <p>LIVE updates of the 2nd annual Bob Uecker Memorial Race to .200</p>
+            <h1><strong><span>🏇⚾💸</span> 2025 <span>🏇⚾💸</span><br>MENDOZA STAKES</strong></h1>
+            <p class="race-title"><em>The 2nd Annual Running of the<br>Bob Uecker Memorial Race to .200</em></p>
         </div>
-        
-        <div class="last-updated" id="lastUpdated"></div>
         
         <div id="content">
-            <div class="loading">Loading player data...</div>
+            <div class="loading">Hold yer horses...</div>
         </div>
+        
+        
+        
+        <div class="live-standings">
+            <p><strong id="live-indicator">LIVE</strong> standings updated <span id="last-updated">loading...</span><br>For more info, consult our <a href="https://dudlawson.com/LEDE2025" target="_blank">Racing Form</a><br>or contact your <a href="mailto:COMMISH@MENDOZALEAGUE.COM?subject=Your%20ideas%20are%20intriguing%20to%20me...&body=And%20I%20wish%20to%20subscribe%20to%20your%20newsletter.">loyal Commissioner</a>.</p>
+        </div>
+        <div class="copyright">mendozaleague.com © 2025 your pal <a href="https://www.dudlawson.com" target="_blank">Dud Lawson</a></div>
     </div>
 
     <script>
-        // Player mapping with their MLB API player IDs and jersey numbers
-        const players = {
-            'M. MUNCY': { id: 571970, name: 'Max Muncy', displayName: '⑬ M. MUNCY', position: '3B — American League' },
-            'J. BÁEZ': { id: 595879, name: 'Javier Báez', displayName: '㉘ J. BÁEZ', position: 'OF(!) — American League' },
-            'J. ROGERS': { id: 676730, name: 'Jake Rogers', displayName: '㉞ J. ROGERS', position: 'C — American League' },
-            'M. BUSCH': { id: 683737, name: 'Michael Busch', displayName: '㉙ M. BUSCH', position: '1B — National League' },
-            'J. ADELL': { id: 666176, name: 'Jo Adell', displayName: '➆ J. ADELL', position: 'OF — American League' },
-            'R. HOSKINS': { id: 656555, name: 'Rhys Hoskins', displayName: '⑫ R. HOSKINS', position: '1B — National League' },
-            'T. WALLS': { id: 670764, name: 'Taylor Walls', displayName: '➅ T. WALLS', position: 'SS — American League' },
-            'K. BRYANT': { id: 592178, name: 'Kris Bryant', displayName: '㉓ K. BRYANT', position: 'OF — National League' },
-            'J. SIRI': { id: 642350, name: 'José Siri', displayName: '㉒ J. SIRI', position: 'OF — National League' },
-            'K. LEE': { id: 686676, name: 'Korey Lee', displayName: '㉖ K. LEE', position: 'C — American League' },
-            'D. MOORE': { id: 664238, name: 'Dylan Moore', displayName: '㉕ D. MOORE', position: 'UT — American League' }
+        // Configuration
+        const REFRESH_INTERVAL = 30000; // 30 seconds
+        const API_BASE = 'https://statsapi.mlb.com/api/v1';
+        
+        const PHRASES = [
+            'Hits are for Squares!',
+            'Stakes is Mid',
+            'As Above | So Below',
+            'Your Perfect Fantasy',
+            'This is My Fantasy',
+            'Best we can do is our Worst',
+            'Do your Worst!',
+            'Not so Good ain\'t so Bad',
+            'Not so Bad ain\'t so Good',
+            'It\'s a Shame!',
+            'It\'s Good to be Okay',
+            'So it Goes!',
+            'Batting & Nothingness',
+            'Root for Nothing!',
+            'Greetings from the Middle West',
+            '...& They\'re Off!!!',
+            'No one can give more than 100% by definition that is the most anyone can give',
+            'Hang the D.H.',
+            'Put Manny in the Hall',
+            'Congratulations to 2025 Kentucky Derby winner Sovereignity',
+            'Congratulations to 2025 Preakness Stakes winner Journalism',
+            'So... Big Gulps, huh?',
+            'Put Barry in the Hall',
+            '...& Here Come the Pretzels!',
+            'Trim those sideburns!',
+            'Strikeouts are Fascist',
+            'You guys are guests in my Corn.'
+        ];
+
+        const PLAYERS = {
+            'M. MUNCY': { id: 571970, name: 'Max Muncy', displayName: '⑬ M. MUNCY', league: 'NL', teamId: 119 },
+            'J. BÁEZ': { id: 595879, name: 'Javier Báez', displayName: '㉘ J. BÁEZ', league: 'AL', teamId: 116 },
+            'J. ROGERS': { id: 668670, name: 'Jake Rogers', displayName: '㉞ J. ROGERS', league: 'AL', teamId: 116 },
+            'M. BUSCH': { id: 683737, name: 'Michael Busch', displayName: '㉙ M. BUSCH', league: 'NL', teamId: 112 },
+            'J. ADELL': { id: 666176, name: 'Jo Adell', displayName: '➆ J. ADELL', league: 'AL', teamId: 108 },
+            'R. HOSKINS': { id: 656555, name: 'Rhys Hoskins', displayName: '⑫ R. HOSKINS', league: 'NL', teamId: 158 },
+            'T. WALLS': { id: 670764, name: 'Taylor Walls', displayName: '➅ T. WALLS', league: 'AL', teamId: 139 },
+            'K. BRYANT': { id: 592178, name: 'Kris Bryant', displayName: '㉓ K. BRYANT', league: 'NL', teamId: 115 },
+            'J. SIRI': { id: 642350, name: 'José Siri', displayName: '㉒ J. SIRI', league: 'NL', teamId: 158 },
+            'K. LEE': { id: 686676, name: 'Korey Lee', displayName: '㉖ KOREY L.', league: 'AL', teamId: 117 },
+            'D. MOORE': { id: 664238, name: 'Dylan Moore', displayName: '㉕ D. MOORE', league: 'AL', teamId: 136 }
         };
 
+        // State
         let playerData = [];
+        let previousPlayerStats = {};
+        let refreshInterval;
+        let isRefreshActive = false;
+        let isInitialLoad = true;
+        let activeGames = new Set();
+        let activeGameLineups = new Map(); // Store lineup data for active games
+        let playerLastPlayData = {}; // Track last play for each player
 
+        // Utility Functions
+        function getRandomPhrase() {
+            return Math.random() < 0.2 ? PHRASES[0] : PHRASES[Math.floor(Math.random() * (PHRASES.length - 1)) + 1];
+        }
+
+        function updateTimestamp() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: true
+            });
+            
+            const timestampElement = document.getElementById('last-updated');
+            if (timestampElement) {
+                timestampElement.textContent = timeString;
+            }
+        }
+
+        function updateLiveIndicator(hasActiveGames) {
+            const liveIndicator = document.getElementById('live-indicator');
+            if (liveIndicator) {
+                liveIndicator.classList.toggle('live-blink', hasActiveGames);
+            }
+        }
+
+        // Enhanced play-by-play tracking
+        async function getLastPlayForPlayer(playerId, gameId) {
+            try {
+                const response = await fetch(`${API_BASE}/game/${gameId}/playByPlay`);
+                if (!response.ok) return null;
+                
+                const playByPlay = await response.json();
+                if (!playByPlay.allPlays) return null;
+                
+                // Find the most recent play involving this player
+                for (let i = playByPlay.allPlays.length - 1; i >= 0; i--) {
+                    const play = playByPlay.allPlays[i];
+                    if (play.matchup && play.matchup.batter && play.matchup.batter.id === playerId) {
+                        return {
+                            playId: play.playId,
+                            result: play.result,
+                            playIndex: play.atBatIndex
+                        };
+                    }
+                }
+                return null;
+            } catch (error) {
+                console.error('Error fetching play-by-play:', error);
+                return null;
+            }
+        }
+
+        function determinePlayType(result) {
+            if (!result) return null;
+            
+            const event = result.event ? result.event.toLowerCase() : '';
+            const eventType = result.eventType ? result.eventType.toLowerCase() : '';
+            const description = result.description ? result.description.toLowerCase() : '';
+            
+            // Check for bunt or sacrifice fly
+            if (event.includes('bunt') || event.includes('sac_bunt') || 
+                event.includes('sacrifice') || eventType.includes('sac') ||
+                description.includes('bunt') || description.includes('sacrifice')) {
+                return 'bunt_sac';
+            }
+            
+            // Check for walk
+            if (event.includes('walk') || event === 'walk' || 
+                eventType.includes('walk') || description.includes('walk')) {
+                return 'walk';
+            }
+            
+            // Check for hit by pitch
+            if (event.includes('hit_by_pitch') || event === 'hit_by_pitch' ||
+                eventType.includes('hit_by_pitch') || description.includes('hit by pitch')) {
+                return 'hbp';
+            }
+            
+            return null;
+        }
+
+        // Game Status Functions
+        async function shouldRefresh() {
+            try {
+                const today = new Date().toISOString().split('T')[0];
+                const response = await fetch(`${API_BASE}/schedule?sportId=1&date=${today}&hydrate=lineups`);
+                
+                if (!response.ok) {
+                    console.warn('Could not fetch schedule, defaulting to refresh');
+                    return true;
+                }
+                
+                const schedule = await response.json();
+                
+                if (!schedule.dates || schedule.dates.length === 0) {
+                    activeGames.clear();
+                    activeGameLineups.clear();
+                    return false;
+                }
+                
+                const games = schedule.dates[0].games;
+                activeGames.clear();
+                activeGameLineups.clear();
+                
+                const hasActiveGames = games.some(game => {
+                    const statusCode = game.status.statusCode;
+                    const isActive = ['P', 'I', 'W', 'D', 'T'].includes(statusCode);
+                    
+                    if (isActive) {
+                        const gameInfo = {
+                            gameId: game.gamePk,
+                            awayTeamId: game.teams.away.team.id,
+                            homeTeamId: game.teams.home.team.id,
+                            statusCode: statusCode
+                        };
+                        activeGames.add(gameInfo);
+                        
+                        // Store lineup data if available
+                        if (game.lineups) {
+                            const lineupPlayers = [];
+                            
+                            // Add away team lineup
+                            if (game.lineups.awayPlayers) {
+                                game.lineups.awayPlayers.forEach(player => {
+                                    lineupPlayers.push(player.id);
+                                });
+                            }
+                            
+                            // Add home team lineup
+                            if (game.lineups.homePlayers) {
+                                game.lineups.homePlayers.forEach(player => {
+                                    lineupPlayers.push(player.id);
+                                });
+                            }
+                            
+                            activeGameLineups.set(game.gamePk, lineupPlayers);
+                        }
+                    }
+                    
+                    return isActive;
+                });
+                
+                updateLiveIndicator(hasActiveGames);
+                return hasActiveGames;
+                
+            } catch (error) {
+                console.error('Error checking game schedule:', error);
+                updateLiveIndicator(false);
+                activeGames.clear();
+                activeGameLineups.clear();
+                return true;
+            }
+        }
+
+        function checkILStatus(player) {
+            if (!player.rosterEntries) return false;
+            
+            return player.rosterEntries.some(entry => {
+                const status = entry.status;
+                if (!status) return false;
+                
+                const statusCode = status.code || status.statusCode || '';
+                return statusCode.includes('IL') || statusCode.includes('DL') || 
+                       ['D10', 'D15', 'D60'].includes(statusCode);
+            });
+        }
+
+        async function checkGameStatus(player) {
+            const playerInfo = Object.values(PLAYERS).find(p => p.id === player.id);
+            if (!playerInfo?.teamId) return { isInGame: false, isInLineup: false, lastPlayType: null };
+            
+            let isInGame = false;
+            let isInLineup = false;
+            let currentGameId = null;
+            let lastPlayType = null;
+            
+            // Check if player's team has an active game
+            for (const game of activeGames) {
+                if (game.awayTeamId === playerInfo.teamId || game.homeTeamId === playerInfo.teamId) {
+                    isInGame = true;
+                    currentGameId = game.gameId;
+                    
+                    // Check if player is in the lineup for this game
+                    const lineupPlayers = activeGameLineups.get(game.gameId);
+                    if (lineupPlayers && lineupPlayers.includes(player.id)) {
+                        isInLineup = true;
+                        
+                        // Get last play data for this player
+                        const lastPlay = await getLastPlayForPlayer(player.id, game.gameId);
+                        if (lastPlay) {
+                            const previousPlay = playerLastPlayData[player.id];
+                            
+                            // Only detect new plays
+                            if (!previousPlay || previousPlay.playId !== lastPlay.playId) {
+                                lastPlayType = determinePlayType(lastPlay.result);
+                                playerLastPlayData[player.id] = lastPlay;
+                            }
+                        }
+                    }
+                    break;
+                }
+            }
+            
+            return { isInGame, isInLineup, lastPlayType };
+        }
+
+        // Data Fetching
         async function fetchPlayerStats() {
             try {
                 const currentYear = new Date().getFullYear();
-                const playerIds = Object.values(players).map(p => p.id).join(',');
+                const playerIds = Object.values(PLAYERS).map(p => p.id).join(',');
                 
-                // MLB Stats API endpoint for current season stats
-                const response = await fetch(`https://statsapi.mlb.com/api/v1/people?personIds=${playerIds}&hydrate=stats(group=[hitting],type=[season],season=${currentYear})`);
+                const response = await fetch(`${API_BASE}/people?personIds=${playerIds}&hydrate=stats(group=[hitting],type=[season],season=${currentYear}),currentTeam,rosterEntries`);
                 
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -259,115 +597,225 @@
                 
                 const data = await response.json();
                 
-                playerData = data.people.map(player => {
+                const newPlayerData = await Promise.all(data.people.map(async player => {
                     const hittingStats = player.stats?.[0]?.splits?.[0]?.stat;
                     const battingAvg = hittingStats?.avg ? parseFloat(hittingStats.avg) : 0;
                     const distanceTo200 = Math.abs(battingAvg - 0.200);
                     
-                    // Find the display name with jersey number and position
-                    const playerInfo = Object.values(players).find(p => p.id === player.id);
-                    const displayName = playerInfo ? playerInfo.displayName : player.fullName;
-                    const position = playerInfo ? playerInfo.position : 'Unknown';
+                    const isOnIL = checkILStatus(player);
+                    const gameStatus = await checkGameStatus(player);
+                    const playerInfo = Object.values(PLAYERS).find(p => p.id === player.id);
+                    const displayName = playerInfo?.displayName || player.fullName;
+                    const league = playerInfo?.league || 'Unknown';
+                    
+                    const playerId = player.id;
+                    const previousStats = previousPlayerStats[playerId];
+                    let statChange = null;
+                    
+                    if (previousStats && !isInitialLoad) {
+                        const previousDistance = previousStats.distanceTo200;
+                        
+                        if (distanceTo200 < previousDistance) {
+                            statChange = 'closer';
+                        } else if (distanceTo200 > previousDistance) {
+                            statChange = 'farther';
+                        }
+                    }
+                    
+                    previousPlayerStats[playerId] = {
+                        battingAverage: battingAvg,
+                        distanceTo200: distanceTo200,
+                        atBats: hittingStats?.atBats || 0,
+                        hits: hittingStats?.hits || 0,
+                        homeRuns: hittingStats?.homeRuns || 0,
+                        strikeOuts: hittingStats?.strikeOuts || 0
+                    };
                     
                     return {
                         id: player.id,
                         name: player.fullName,
-                        displayName: displayName,
+                        displayName,
                         team: player.currentTeam?.name || 'Unknown',
-                        position: position,
+                        league,
                         battingAverage: battingAvg,
-                        distanceTo200: distanceTo200,
+                        distanceTo200,
                         atBats: hittingStats?.atBats || 0,
-                        hits: hittingStats?.hits || 0
+                        hits: hittingStats?.hits || 0,
+                        isOnIL,
+                        isInGame: gameStatus.isInGame,
+                        isInLineup: gameStatus.isInLineup,
+                        statChange,
+                        lastPlayType: gameStatus.lastPlayType
                     };
-                }).sort((a, b) => a.distanceTo200 - b.distanceTo200);
+                }));
                 
+                playerData = newPlayerData.sort((a, b) => a.distanceTo200 - b.distanceTo200);
                 renderLeaderboard();
+                updateTimestamp();
+                
+                if (isInitialLoad) {
+                    isInitialLoad = false;
+                }
                 
             } catch (error) {
                 console.error('Error fetching player stats:', error);
-                document.getElementById('content').innerHTML = `
-                    <div class="error">
-                        ⚠️ Error loading player data. Please check your internet connection and try again.
-                        <br><small>Error: ${error.message}</small>
-                    </div>
-                `;
+                const content = document.getElementById('content');
+                if (content) {
+                    content.innerHTML = `
+                        <div class="error">
+                            You gotta be online for that...
+                            <br><small>Error: ${error.message}</small>
+                        </div>
+                    `;
+                }
             }
         }
 
+        // Rendering
         function renderLeaderboard() {
             const content = document.getElementById('content');
-            const lastUpdated = document.getElementById('lastUpdated');
-            
-            // Update timestamp
-            lastUpdated.textContent = `Last updated: ${new Date().toLocaleString()}`;
+            if (!content) return;
             
             if (playerData.length === 0) {
-                content.innerHTML = '<div class="error">No player data available</div>';
+                content.innerHTML = '<div class="error">I don\'t know her...</div>';
                 return;
             }
             
-            const leaderboardHTML = `
-                <div class="leaderboard">
-                    ${playerData.map((player, index) => {
-                        const maxDistance = Math.max(...playerData.map(p => p.distanceTo200));
-                        const fillWidth = maxDistance > 0 ? (player.distanceTo200 / maxDistance) * 100 : 0;
+            const currentScrollY = window.scrollY;
+            let leaderboard = content.querySelector('.leaderboard');
+            
+            if (!leaderboard) {
+                content.innerHTML = `
+                    <div class="mendoza-line-divider"> "THE MENDOZA LINE" </div>
+                    <div class="leaderboard"></div>
+                    <div class="hits-squares-text">${getRandomPhrase()}</div>
+                `;
+                leaderboard = content.querySelector('.leaderboard');
+            }
+            
+            if (leaderboard) {
+                leaderboard.innerHTML = playerData.map((player, index) => {
+                    const rowClasses = [
+                        'first-place', 'second-place', 'odd-place', 'even-place', 
+                        'odd-place', 'even-place', 'odd-place', 'even-place', 
+                        'odd-place', 'even-place', 'odd-place'
+                    ];
+                    
+                    const rowClass = rowClasses[index] || 'even-place';
+                    const isAtMendozaLine = player.battingAverage === 0.200;
+                    const isFirstPlace = index === 0;
+                    
+                    let dotContent = '';
+                    let dotClasses = 'game-status-dot';
+                    
+                    // Only show dot if player is in the lineup of an active game
+                    if (player.isInLineup) {
+                        dotContent = '•';
+                        dotClasses += ' active-player-dot';
                         
-                        // Determine row class based on position
-                        let rowClass = '';
-                        if (index === 0) {
-                            rowClass = 'first-place';
-                        } else if (index === 1) {
-                            rowClass = 'second-place';
-                        } else if (index === 2 || index === 4 || index === 6 || index === 8 || index === 10) {
-                            // 3rd, 5th, 7th, 9th, 11th places (0-indexed: 2, 4, 6, 8, 10)
-                            rowClass = 'odd-place';
-                        } else if (index === 3 || index === 5 || index === 7 || index === 9) {
-                            // 4th, 6th, 8th, 10th places (0-indexed: 3, 5, 7, 9)
-                            rowClass = 'even-place';
+                        // Handle stat changes (batting average getting closer/farther from .200)
+                        if (player.statChange === 'closer') {
+                            dotClasses += ' flash-dot-green';
+                        } else if (player.statChange === 'farther') {
+                            dotClasses += ' flash-dot-red';
                         }
                         
-                        return `
-                            <div class="player-row ${rowClass}">
-                                <div class="rank ${index === 0 ? 'closest' : ''}">${index + 1}</div>
-                                <div class="player-info">
-                                    <div>
-                                        <div class="player-name">${player.displayName}</div>
-                                        <div class="player-team">${player.position}</div>
+                        // Handle specific play types
+                        if (player.lastPlayType === 'bunt_sac') {
+                            dotClasses += ' bunt-sac-dot flash-dot-pink';
+                        } else if (player.lastPlayType === 'walk') {
+                            dotClasses += ' walk-dot flash-dot-white';
+                        } else if (player.lastPlayType === 'hbp') {
+                            dotClasses += ' hbp-dot flash-dot-orange';
+                        }
+                        
+                        if (isAtMendozaLine) {
+                            dotContent = '😎';
+                        }
+                    } else if (isAtMendozaLine) {
+                        dotContent = '😎';
+                    }
+                    
+                    return `
+                        <div class="player-row ${rowClass}">
+                            <div class="player-info">
+                                <div>
+                                    <div class="player-name">
+                                        ${player.displayName}
+                                        ${dotContent ? `<span class="${dotClasses}">${dotContent}</span>` : ''}
                                     </div>
-                                    <div class="batting-stats">
-                                        <div class="batting-avg">${player.battingAverage.toFixed(3)}</div>
-                                        <div class="distance-to-200">
-                                            ${player.distanceTo200 > 0 ? '+' : ''}${(player.distanceTo200).toFixed(3)} from .200
+                                </div>
+                                <div class="batting-stats">
+                                    <div class="batting-display" data-player-id="${player.id}">
+                                        <div class="batting-average">
+                                            <span style="font-style: normal;">${player.battingAverage.toFixed(3).substring(1)}</span>
                                         </div>
-                                        <div class="distance-bar">
-                                            <div class="distance-fill" style="width: ${fillWidth}%"></div>
-                                        </div>
-                                        <div style="font-size: 0.8rem; margin-top: 5px; opacity: 0.7;">
-                                            ${player.atBats}/200AB
+                                        <div class="tap-tooltip">
+                                            <span style="font-style: normal;">${player.statChange === \'closer\' ? "📈 " : player.statChange === \'farther\' ? "📉 " : ""}${isFirstPlace ? '🏁 ' : ''}${player.isOnIL ? '🤕 ' : ''}${player.atBats}/200AB</span>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        `;
-                    }).join('')}
-                </div>
-            `;
+                        </div>
+                    `;
+                }).join('');
+                
+                // Add click handlers
+                const battingDisplays = leaderboard.querySelectorAll('.batting-display');
+                battingDisplays.forEach(display => {
+                    display.addEventListener('click', function(e) {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        
+                        // Toggle active state
+                        battingDisplays.forEach(d => d.classList.remove('active'));
+                        this.classList.add('active');
+                        
+                        // Remove active state after 3 seconds
+                        setTimeout(() => {
+                            this.classList.remove('active');
+                        }, 3000);
+                    });
+                });
+            }
             
-            content.innerHTML = leaderboardHTML;
+            // Preserve scroll position if not initial load
+            if (!isInitialLoad) {
+                window.scrollTo(0, currentScrollY);
+            }
         }
 
-        // Initial load
-        fetchPlayerStats();
-        
-        // Auto-refresh every 30 seconds
-        setInterval(fetchPlayerStats, 30000);
-        
-        // Add a manual refresh button (optional)
-        document.addEventListener('keydown', function(event) {
-            if (event.key === 'r' || event.key === 'R') {
-                fetchPlayerStats();
+        // Refresh Management
+        function startRefreshInterval() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
             }
+            
+            refreshInterval = setInterval(async () => {
+                const shouldDoRefresh = await shouldRefresh();
+                
+                if (shouldDoRefresh && !isRefreshActive) {
+                    console.log('Games are active - starting refresh');
+                    isRefreshActive = true;
+                    fetchPlayerStats();
+                } else if (!shouldDoRefresh && isRefreshActive) {
+                    console.log('No games active - stopping refresh');
+                    isRefreshActive = false;
+                } else if (shouldDoRefresh && isRefreshActive) {
+                    fetchPlayerStats();
+                }
+            }, REFRESH_INTERVAL);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            fetchPlayerStats();
+            shouldRefresh().then(hasActiveGames => {
+                if (hasActiveGames) {
+                    isRefreshActive = true;
+                }
+                startRefreshInterval();
+            });
         });
     </script>
 </body>
